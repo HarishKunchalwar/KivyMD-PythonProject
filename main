@@ -1,0 +1,82 @@
+import cv2
+import numpy
+from pyzbar.pyzbar import decode
+
+
+
+
+
+#To Add webCam using cv2
+#An object is defined for the videoCapture  source
+#Cap is the Object ,0 is the ID
+cap=cv2.VideoCapture(0)
+
+#width and height is defined
+cap.set(3,640)
+cap.set(4,480)
+
+
+
+
+while True:
+
+    success, img=cap.read()
+
+    #In case of multiple barcodes or qrcodes for loop is used
+    for barcode in decode(img):
+        # To decode the data in codes using a decoding method 'utf-8'
+        # this will convert the data into string and stores it in myData
+        # which is printed using print(myData)
+        mydata=barcode.data.decode('utf-8')
+        print(mydata)
+
+        """
+        To add bounding Boxes around the QR Code
+        For this purpose we used a polygon which is converted into an array
+        Then we Reshaped it and Returned to Polygon Line Function
+        
+        'numpy.array(object, dtype=None, *, copy=True, order='K', subok=False, ndmin=0)
+        int32 is a 32 bit integer datatype
+        only object is Required field*
+        rest all are Optional fields
+        '
+        
+        (ndminint, optional):- Specifies the minimum number of dimensions that the
+         resulting array should have. Ones will be pre-pended to the shape as needed to meet this requirement.
+        
+        Returns
+        outndarray
+        An array object satisfying the specified requirements.
+        
+        """
+        pts=numpy.array([barcode.polygon],numpy.int32)
+        pts=pts.reshape((-1,1,2))
+
+        """
+        Function for the polygon To display a bounding box
+        polygon around the QRcode,BarCode
+        
+        cv2.polylines() method is used to draw a polygon on any image.
+        cv2.polylines(image, [pts], isClosed, color, thickness)
+        """
+        cv2.polylines(img,[pts],True,(255,0.255),5)
+        pts2=barcode.rect
+
+        """
+        cv2.putText() method is used to draw a text string on any image
+         cv2.putText(image, text, org, font, fontScale, color[, thickness[, lineType[, bottomLeftOrigin]]])
+        (195,0,255) ,rgb(255,15,63) is the text color
+        
+        
+        """
+        cv2.putText(img,mydata,(pts2[0],pts2[1]),cv2.FONT_HERSHEY_COMPLEX
+                    ,0.9,(255,15,63) )
+
+
+
+
+    cv2.imshow('Result',img)
+    cv2.waitKey(1)
+
+
+
